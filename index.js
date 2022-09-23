@@ -1,8 +1,8 @@
 import express from "express";
-import session from "express-session";
 import bcrypt from "bcrypt";
 import { MongoClient } from "mongodb";
 import { ObjectID } from "bson";
+import { registerValidation } from "./validations/auth.js";
 
 const client = new MongoClient(
   "mongodb+srv://davit:qwerty123456@cluster0.smt2era.mongodb.net/?retryWrites=true&w=majority"
@@ -33,7 +33,7 @@ app.post("/signin", async (req, res) => {
   }
   res.send({ msg: "Not defined" });
 });
-app.post("/signup", async (req, res) => {
+app.post("/signup", registerValidation, async (req, res) => {
   const { firstName, lastName, age, email, password } = req.body;
 
   const hashedPass = await bcrypt.hash(password, 10);
