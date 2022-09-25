@@ -6,8 +6,6 @@ import { validationResult } from "express-validator";
 import UserModel from "./models/User.js";
 import jwt from "jsonwebtoken";
 
-const doc = new UserModel();
-
 mongoose
   .connect(process.env.DB_URL)
   .then(() => console.log("DB ok!"))
