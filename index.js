@@ -21,17 +21,14 @@ app.use(express.urlencoded({ extended: true }));
 app.post("/sign-in", async (req, res) => {
   const { email, password } = req.body;
 
-  const currentUser = await UserModel.findOne({ email });
+  const user = await UserModel.findOne({ email });
 
-  if (await bcrypt.compare(password, currentUser.passwordHash)) {
-    const token = jwt.sign(
-      {
-        _id: currentUser._id,
-      },
-      process.env.JWT_SECRET
-    );
+  if (user && (await bcrypt.compare(password, user.passwordHash))) {
+    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
+      algorithm: "HS256",
+    });
 
-    const { email, _id } = currentUser._doc;
+    const { email, _id } = user._doc;
 
     res.json({
       email,
@@ -39,7 +36,7 @@ app.post("/sign-in", async (req, res) => {
       token,
     });
   } else {
-    res.send({ msg: "Not defined" });
+    res.send({ msg: "Not Incorrect email or password" });
   }
 });
 
