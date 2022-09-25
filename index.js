@@ -1,30 +1,21 @@
 import express from "express";
 import bcrypt from "bcrypt";
-import { MongoClient } from "mongodb";
-import { ObjectID } from "bson";
+import mongoose from "mongoose";
 import { registerValidation } from "./validations/auth.js";
+import { validationResult } from "express-validator";
+import UserModel from "./models/User.js";
 
-const client = new MongoClient(
-  "mongodb+srv://davit:qwerty123456@cluster0.smt2era.mongodb.net/?retryWrites=true&w=majority"
-);
-
-const users = client.db().collection("users");
-
-const start = async () => {
-  try {
-    await client.connect();
-  } catch (err) {
-    console.log(err);
-  }
-};
-start();
+mongoose
+  .connect(process.env.DB_URL)
+  .then(() => console.log("DB ok!"))
+  .catch(err => console.log(err));
 
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.post("/signin", async (req, res) => {
+app.post("/sign-in", async (req, res) => {
   const { email, password } = req.body;
 
   const currentUser = await users.findOne({ email });
@@ -33,26 +24,49 @@ app.post("/signin", async (req, res) => {
   }
   res.send({ msg: "Not defined" });
 });
-app.post("/signup", registerValidation, async (req, res) => {
-  const { firstName, lastName, age, email, password } = req.body;
 
-  const hashedPass = await bcrypt.hash(password, 10);
-  users.insertOne({
-    firstName,
-    lastName,
-    age,
-    email,
-    password: hashedPass,
-  });
+app.post("/sign-up", registerValidation, async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json(errors.array()[0]);
+    }
 
-  res.redirect("/signin");
+    const { email, password, lastName, firstName, age } = req.body;
+    const checkUser = await UserModel.findOne({ email });
+
+    if (checkUser)
+      return res.status(409).json({ message: "e-mail уже зарегистрован!" });
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    const doc = new UserModel({
+      email,
+      passwordHash,
+      lastName,
+      firstName,
+      age,
+    });
+
+    const user = await doc.save();
+
+    res.status(200).json(user);
+  } catch (err) {
+    res.status(500).json({
+      message: "Не удалось зарегистрирваться",
+    });
+  }
 });
+
 app.get("/users", async (req, res) => {
-  res.send(await users.find().toArray());
+  res.status(200).send(await UserModel.find());
 });
+
 app.get("/users/:id", async (req, res) => {
   const { id } = req.params;
-  res.send(await users.findOne({ _id: ObjectID(id) }));
+  const user = await UserModel.findById(id);
+  if (user) return res.status(200).send(user);
+  res.status(404).json({ message: "Нету пользователя" });
 });
 
 app.listen(process.env.PORT);
