@@ -4,6 +4,9 @@ import mongoose from "mongoose";
 import { registerValidation } from "./validations/auth.js";
 import { validationResult } from "express-validator";
 import UserModel from "./models/User.js";
+import jwt from "jsonwebtoken";
+
+const doc = new UserModel();
 
 mongoose
   .connect(process.env.DB_URL)
@@ -18,11 +21,23 @@ app.use(express.urlencoded({ extended: true }));
 app.post("/sign-in", async (req, res) => {
   const { email, password } = req.body;
 
-  const currentUser = await users.findOne({ email });
-  if (await bcrypt.compare(password, currentUser.password)) {
-    res.send(currentUser);
+  const user = await UserModel.findOne({ email });
+
+  if (user && (await bcrypt.compare(password, user.passwordHash))) {
+    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
+      algorithm: "HS256",
+    });
+
+    const { email, _id } = user._doc;
+
+    res.json({
+      email,
+      _id,
+      token,
+    });
+  } else {
+    res.send({ msg: "Not Incorrect email or password" });
   }
-  res.send({ msg: "Not defined" });
 });
 
 app.post("/sign-up", registerValidation, async (req, res) => {
