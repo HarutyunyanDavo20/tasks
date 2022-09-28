@@ -9,14 +9,16 @@ mongoose
 
 const app = express();
 
-const notesRouter = require('./controllers/notesController');
-const authRouter = require('./controllers/authController');
-const userRoute = require('./controllers/userController');
+const notesRouter = require('./controllers/notes.controller');
+const authRouter = require('./controllers/auth.controller');
+const userRoute = require('./controllers/user.controller');
+
+const authGuard = require('./utils/auth.guard');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/notes', notesRouter);
+app.use('/notes', authGuard, notesRouter);
 app.use('/auth', authRouter)
 app.use('/users', userRoute)
 

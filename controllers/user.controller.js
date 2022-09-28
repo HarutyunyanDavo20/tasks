@@ -1,8 +1,9 @@
-const UserModel = require("../models/User.js");
+const UserModel = require("../models/user.model.js");
 
 const router = require('express').Router();
 router.get('/', async (req, res) => {
-  res.status(200).send(await UserModel.find());
+  const users = await UserModel.find();
+  res.status(200).send(users);
 })
 
 router.get('/:id', async (req, res) => {
