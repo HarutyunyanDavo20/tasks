@@ -1,13 +1,17 @@
 import jwt from "jsonwebtoken";
 
-export default (req, res, next) => {
+module.exports = (req, res, next) => {
   try {
-    const token = req.headers.authorization.split(" ")[1];
-    const decode = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decode;
+    const authHeader = req.headers.authorization;
+    const token = (authHeader && authHeader.startsWith('Bearer') && authHeader.split(' ')[1]) || null;
 
-    return next();
+    if (token) {
+      req.user = jwt.verify(token, process.env.JWT_SECRET);
+      next()
+    } else {
+      res.status(401).json({ msg: "Unauthorized" });
+    }
   } catch (err) {
-    res.status(401).json({ msg: "Unauthorizated" });
+    res.status(401).json({ msg: "Unauthorized" });
   }
 };
