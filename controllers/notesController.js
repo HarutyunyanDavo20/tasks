@@ -7,7 +7,7 @@ router.get('/', async (req, res) => {
     const notes = await NoteModel.find({ userId: req.user._id });
     res.json(notes);
   } catch (err) {
-    res.status(401).json({ msg: err.message });
+    res.status(401).json({ message: err.message });
   }
 })
 
@@ -27,7 +27,7 @@ router.post('/', async (req, res) => {
 
     res.status(201).json(newNote);
   } catch (err) {
-    res.status(401).json({ msg: err.message });
+    res.status(401).json({ message: err.message });
   }
 })
 
@@ -44,17 +44,17 @@ router.put('/:id', async (req, res) => {
 
     res.status(200).send(updatedNote);
   } catch (err) {
-    res.status(401).json({ msg: err.message });
+    res.status(401).json({ message: err.message });
   }
 })
 
 router.delete('/', async (req, res) => {
   try {
     const { id } = req.params;
-    const msg = await NoteModel.findByIdAndDelete(id);
-    res.status(200).json({ msg });
+    const message = await NoteModel.findByIdAndDelete(id);
+    res.status(200).json({ message });
   } catch (err) {
-    res.status(500).json({ msg: err.message });
+    res.status(500).json({ message: err.message });
   }
 })
 
