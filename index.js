@@ -1,10 +1,6 @@
-import express from "express";
-import mongoose from "mongoose";
-import checkAuth from "./utils/checkAuth.js";
-import { noteValidation } from "./validations/note.js";
-import { registerValidation } from "./validations/auth.js";
-import * as userController from "./controllers/userController.js";
-import * as noteController from "./controllers/notesController.js";
+const express = require("express")
+const mongoose = require("mongoose").default
+require('dotenv').config();
 
 mongoose
   .connect(process.env.DB_URL)
@@ -13,18 +9,18 @@ mongoose
 
 const app = express();
 
+const notesRouter = require('./controllers/notes.controller');
+const authRouter = require('./controllers/auth.controller');
+const userRoute = require('./controllers/user.controller');
+
+const authGuard = require('./utils/auth.guard');
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get("/users", userController.getUsers);
-app.get("/users/:id", userController.getUserByID);
-app.post("/sign-in", userController.signIn);
-app.post("/sign-up", registerValidation, userController.signUp);
-
-app.get("/notes", checkAuth, noteController.getNotes);
-app.post("/notes", checkAuth, noteController.create);
-app.put("/notes/:id", [checkAuth, noteValidation], noteController.updateNote);
-app.delete("/notes/:id", checkAuth, noteController.deleteNote);
+app.use('/notes', authGuard, notesRouter);
+app.use('/auth', authRouter)
+app.use('/users', userRoute)
 
 app.listen(process.env.PORT, () =>
   console.log("Server started on port", process.env.PORT)
