@@ -1,5 +1,5 @@
 const express = require("express");
-const cors = require('cors')
+const cors = require("cors");
 const mongoose = require("mongoose").default;
 require("dotenv").config();
 
@@ -16,14 +16,13 @@ const userRoute = require("./controllers/user.controller");
 
 const authGuard = require("./utils/auth.guard");
 
-app.use(cors({origin: '*'}))
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/notes", authGuard, notesRouter);
 app.use("/auth", authRouter);
 app.use("/users", userRoute);
-
 
 app.listen(process.env.PORT, () =>
   console.log("Server started on port", process.env.PORT)
