@@ -7,6 +7,13 @@ export const getUsers = async (req, res) => {
   res.status(200).send(await UserModel.find());
 };
 
+export const getUserByToken= async (req, res) => {
+  const {_id} = req.user 
+  const user = await UserModel.findById(_id)
+
+  res.status(200).json({...user._doc})
+}
+
 export const getUserByID = async (req, res) => {
   const { id } = req.params;
   const user = await UserModel.findById(id);
