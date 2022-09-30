@@ -1,12 +1,12 @@
-import { validationResult } from "express-validator";
-import UserModel from "../models/User.js";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+const { validationResult } = require("express-validator");
+const UserModel = require("../models/user.model.js");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const authGuard = require("../utils/auth.guard.js");
 
-export const getUsers = async (req, res) => {
-  res.status(200).send(await UserModel.find());
-};
+const router = require("express").Router();
 
+<<<<<<< HEAD:controllers/userController.js
 export const getUserByToken= async (req, res) => {
   const {_id} = req.user 
   const user = await UserModel.findById(_id)
@@ -22,13 +22,20 @@ export const getUserByID = async (req, res) => {
   }
   res.status(404).json({ message: "Not User" });
 };
+=======
+router.get("/account", authGuard, async (req, res) => {
+  const { _id } = req.user;
+  const user = await UserModel.findOne({ _id });
+  res.status(200).send({ ...user._doc });
+});
+>>>>>>> 9fa587e15590aa61972db511fb428fb1912712d9:controllers/auth.controller.js
 
-export const signIn = async (req, res) => {
+router.post("/sign-in", async (req, res) => {
   const { email, password } = req.body;
 
   const user = await UserModel.findOne({ email });
 
-  if (user && (await bcrypt.compare(password, user.passwordHash))) {
+  if (user && (await bcrypt.compare(password, user.password))) {
     const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
       algorithm: "HS256",
     });
@@ -41,11 +48,11 @@ export const signIn = async (req, res) => {
       token,
     });
   } else {
-    res.status(401).json({ msg: "Incorrect email or password!" });
+    res.status(401).json({ message: "Incorrect email or password!" });
   }
-};
+});
 
-export const signUp = async (req, res) => {
+router.post("/sign-up", async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -55,25 +62,26 @@ export const signUp = async (req, res) => {
     const { email, password, lastName, firstName, age } = req.body;
     const checkUser = await UserModel.findOne({ email });
 
-    if (checkUser)
+    if (checkUser) {
       return res.status(409).json({ message: "this e-mail is used" });
+    }
 
     const passwordHash = await bcrypt.hash(password, 10);
-
     const doc = new UserModel({
-      email,
-      passwordHash,
+      email: email.toLowerCase(),
+      password: passwordHash,
       lastName,
       firstName,
       age,
     });
 
     const user = await doc.save();
-
     res.status(200).json(user);
   } catch (err) {
     res.status(500).json({
       message: "Failed to register",
     });
   }
-};
+});
+
+module.exports = router;

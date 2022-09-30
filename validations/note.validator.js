@@ -1,4 +1,4 @@
-import { body } from "express-validator";
+const { body } = require("express-validator");
 
 export const noteValidation = [
   body("title", " min-5, max-100").isLength({ min: 3, max: 100 }),
