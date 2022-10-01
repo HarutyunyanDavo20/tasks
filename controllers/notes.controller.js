@@ -39,15 +39,14 @@ router.put('/:id', async (req, res) => {
       return res.status(400).json(errors.array()[0]);
     }
 
-    const updatedNote = await NoteModel.findOneAndUpdate(id, { ...req.body }).getUpdate();
-   
+    const updatedNote = await NoteModel.findByIdAndUpdate(id, { ...req.body });
     res.status(200).send(updatedNote);
   } catch (err) {
     res.status(401).json({ message: err.message });
   }
 })
 
-router.delete('/:id', async (req, res) => {
+router.delete('/', async (req, res) => {
   try {
     const { id } = req.params;
     const message = await NoteModel.findByIdAndDelete(id);
