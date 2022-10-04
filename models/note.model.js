@@ -1,4 +1,4 @@
-const  mongoose = require("mongoose").default
+const mongoose = require("mongoose").default;
 
 const NoteSchema = new mongoose.Schema(
   {
@@ -32,7 +32,8 @@ const NoteSchema = new mongoose.Schema(
     accessType: {
       type: Boolean,
       required: true,
-    },
+    }
+
   },
   {
     timestamps: true,
