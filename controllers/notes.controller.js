@@ -12,47 +12,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.get("/accesses/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const accessesEmails = await AccessModel.find({ note_id: id });
-
-    res.status(200).send(accessesEmails);
-  } catch (err) {
-    res.status(401).json({ message: err.message });
-  }
-});
-
-router.post("/accesses", async (req, res) => {
-  try {
-    const { user_id, note_id } = req.body;
-
-    const doc = new AccessModel({
-      user_id,
-      note_id,
-    });
-
-    await doc.save();
-
-    res.status(200).json(doc);
-  } catch (err) {
-    res.status(401).json({ message: err.message });
-  }
-});
-
-router.delete("/accesses/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    await AccessModel.findByIdAndDelete(id);
-
-    res.status(200).json({ message: "OK" });
-  } catch (err) {
-    res.status(401).json({ message: err.message });
-  }
-});
-
 router.post("/", async (req, res) => {
   try {
     const { title, text, settings, accessType } = req.body;
