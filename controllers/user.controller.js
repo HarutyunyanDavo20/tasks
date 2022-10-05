@@ -1,6 +1,7 @@
 const UserModel = require("../models/user.model.js");
 
 const router = require('express').Router();
+
 router.get('/', async (req, res) => {
   const users = await UserModel.find();
   res.status(200).send(users);

@@ -5,33 +5,31 @@ const jwt = require("jsonwebtoken");
 
 const router = require("express").Router();
 
-router.get("/account", async (req, res) => {
-  const { _id } = req.user;
-  
-  const user = await UserModel.findOne({_id});
-
-  res.status(200).json(user);
-});
-
 router.post("/sign-in", async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  const user = await UserModel.findOne({ email });
+    const user = await UserModel.findOne({ email });
 
-  if (user && (await bcrypt.compare(password, user.password))) {
-    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
-      algorithm: "HS256",
+    if (user && (await bcrypt.compare(password, user.password))) {
+      const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
+        algorithm: "HS256",
+      });
+
+      const { email, _id } = user._doc;
+
+      res.json({
+        email,
+        _id,
+        token,
+      });
+    } else {
+      res.status(401).json({ message: "Incorrect email or password!" });
+    }
+  } catch (err) {
+    res.status(500).json({
+      message: "Failed to login",
     });
-
-    const { email, _id } = user._doc;
-
-    res.json({
-      email,
-      _id,
-      token,
-    });
-  } else {
-    res.status(401).json({ message: "Incorrect email or password!" });
   }
 });
 
