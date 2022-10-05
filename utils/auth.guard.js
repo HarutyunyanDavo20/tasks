@@ -13,9 +13,9 @@ module.exports = (req, res, next) => {
       req.user = jwt.verify(token, process.env.JWT_SECRET);
       next();
     } else {
-      res.status(401).json({ msg: "Unauthorized" });
+      res.status(401).json({ message: "Unauthorized" });
     }
   } catch (err) {
-    res.status(401).json({ msg: "Unauthorized" });
+    res.status(401).json({ message: "Unauthorized" });
   }
 };

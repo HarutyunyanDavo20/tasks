@@ -9,7 +9,7 @@ router.get("/", async (req, res) => {
 
     res.status(200).json(user);
   } catch (err) {
-    res.status(401).json({ msg: "Unauthorized" });
+    res.status(401).json({ message: "Unauthorized" });
   }
 });
 

@@ -8,6 +8,6 @@ export default (req, res, next) => {
     
     return next();
   } catch (err) {
-    res.status(401).json({ msg: "Unauthorizated" });
+    res.status(401).json({ message: "Unauthorizated" });
   }
 };
